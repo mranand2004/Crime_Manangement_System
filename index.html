@@ -1,0 +1,721 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Crime Records Management System</title>
+    <link rel="stylesheet" href="styles.css">
+    <link href="https://cdnjs.cloudflare.com/ajax/libs/font-awesome/6.0.0/css/all.min.css" rel="stylesheet">
+    <script src="dummy-data.js"></script>
+</head>
+<body>
+    <!-- Login Page -->
+    <div id="loginPage" class="page active">
+        <div class="login-container">
+            <div class="login-form">
+                <div class="logo">
+                    <i class="fas fa-shield-alt"></i>
+                    <h1>CRMS</h1>
+                </div>
+                <h2>Crime Records Management System</h2>
+                <form id="loginForm">
+                    <div class="form-group">
+                        <label for="username">Username</label>
+                        <input type="text" id="username" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="password">Password</label>
+                        <input type="password" id="password" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="role">Role</label>
+                        <select id="role" name="role" required>
+                            <option value="">Select Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="police">Police Officer</option>
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Login</button>
+                </form>
+                <div id="loginError" class="error-message"></div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Dashboard Page -->
+    <div id="dashboardPage" class="page">
+        <nav class="navbar">
+            <div class="nav-brand">
+                <i class="fas fa-shield-alt"></i>
+                <span>CRMS Dashboard</span>
+            </div>
+            <div class="nav-user">
+                <span id="userWelcome">Welcome, User</span>
+                <button id="logoutBtn" class="btn btn-secondary">
+                    <i class="fas fa-sign-out-alt"></i> Logout
+                </button>
+            </div>
+        </nav>
+
+        <div class="dashboard-container">
+            <aside class="sidebar">
+                <ul class="nav-menu">
+                    <li><a href="#" data-view="overview" class="nav-link active">
+                        <i class="fas fa-tachometer-alt"></i> Overview
+                    </a></li>
+                    <li><a href="#" data-view="cases" class="nav-link">
+                        <i class="fas fa-folder-open"></i> Cases
+                    </a></li>
+                    <li><a href="#" data-view="add-case" class="nav-link">
+                        <i class="fas fa-plus-circle"></i> File New Case
+                    </a></li>
+                    <li><a href="#" data-view="search" class="nav-link">
+                        <i class="fas fa-search"></i> Search Cases
+                    </a></li>
+                    <li id="usersNavItem" class="admin-only"><a href="#" data-view="users" class="nav-link">
+                        <i class="fas fa-users"></i> Users
+                    </a></li>
+                    <li id="stationsNavItem" class="admin-only"><a href="#" data-view="stations" class="nav-link">
+                        <i class="fas fa-building"></i> Stations
+                    </a></li>
+                    <li id="reportsNavItem" class="admin-only"><a href="#" data-view="reports" class="nav-link">
+                        <i class="fas fa-chart-bar"></i> Reports
+                    </a></li>
+                </ul>
+            </aside>
+
+            <main class="main-content">
+                <!-- Overview Section -->
+                <div id="overviewView" class="view active">
+                    <div class="page-header">
+                        <h2>Dashboard Overview</h2>
+                        <p>Real-time crime records tracking</p>
+                    </div>
+                    
+                    <div class="stats-grid">
+                        <div class="stat-card">
+                            <div class="stat-icon">
+                                <i class="fas fa-folder-open"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="totalCases">0</h3>
+                                <p>Total Cases</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon pending">
+                                <i class="fas fa-clock"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="openCases">0</h3>
+                                <p>Open Cases</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon solved">
+                                <i class="fas fa-check-circle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="closedCases">0</h3>
+                                <p>Closed Cases</p>
+                            </div>
+                        </div>
+                        <div class="stat-card">
+                            <div class="stat-icon active">
+                                <i class="fas fa-exclamation-triangle"></i>
+                            </div>
+                            <div class="stat-info">
+                                <h3 id="inProgressCases">0</h3>
+                                <p>In Progress</p>
+                            </div>
+                        </div>
+                    </div>
+
+                    <div class="recent-cases">
+                        <h3>Recent Cases</h3>
+                        <div class="table-container">
+                            <div class="table-wrapper">
+                                <table id="recentCasesTable">
+                                    <thead>
+                                        <tr>
+                                            <th>Case ID</th>
+                                            <th>FIR Number</th>
+                                            <th>Type</th>
+                                            <th>Victim</th>
+                                            <th>Status</th>
+                                            <th>Date Filed</th>
+                                        </tr>
+                                    </thead>
+                                    <tbody>
+                                        <!-- Recent cases will be populated here -->
+                                    </tbody>
+                                </table>
+                            </div>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Cases Section -->
+                <div id="casesView" class="view">
+                    <div class="page-header">
+                        <h2>All Cases</h2>
+                        <div class="search-filter">
+                            <input type="text" id="caseSearch" placeholder="Search cases...">
+                            <select id="statusFilter">
+                                <option value="">All Status</option>
+                                <option value="open">Open</option>
+                                <option value="in-progress">In Progress</option>
+                                <option value="closed">Closed</option>
+                                <option value="pending">Pending Investigation</option>
+                            </select>
+                            <select id="typeFilter">
+                                <option value="">All Types</option>
+                                <option value="murder">Murder</option>
+                                <option value="theft">Theft</option>
+                                <option value="robbery">Robbery</option>
+                                <option value="cybercrime">Cybercrime</option>
+                                <option value="domestic-violence">Domestic Violence</option>
+                                <option value="missing-person">Missing Person</option>
+                                <option value="fraud">Fraud</option>
+                                <option value="other">Other</option>
+                            </select>
+                        </div>
+                    </div>
+                    
+                    <div class="table-container">
+                        <div class="table-wrapper">
+                            <table id="casesTable">
+                                <thead>
+                                    <tr>
+                                        <th>Case ID</th>
+                                        <th>FIR Number</th>
+                                        <th>Type</th>
+                                        <th>Victim</th>
+                                        <th>Suspect</th>
+                                        <th>Status</th>
+                                        <th>Station</th>
+                                        <th>Date Filed</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Cases will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Add Case Section -->
+                <div id="addCaseView" class="view">
+                    <div class="page-header">
+                        <h2>File New Case</h2>
+                        <p>Register a detailed criminal case</p>
+                    </div>
+                    
+                    <div class="case-form-container">
+                        <div class="form-progress">
+                            <div class="progress-step active" data-step="1">
+                                <span class="step-number">1</span>
+                                <span class="step-label">Basic Info</span>
+                            </div>
+                            <div class="progress-step" data-step="2">
+                                <span class="step-number">2</span>
+                                <span class="step-label">Victim Details</span>
+                            </div>
+                            <div class="progress-step" data-step="3">
+                                <span class="step-number">3</span>
+                                <span class="step-label">Suspect Details</span>
+                            </div>
+                            <div class="progress-step" data-step="4">
+                                <span class="step-number">4</span>
+                                <span class="step-label">Incident Details</span>
+                            </div>
+                            <div class="progress-step" data-step="5">
+                                <span class="step-number">5</span>
+                                <span class="step-label">Evidence & Review</span>
+                            </div>
+                        </div>
+
+                        <form id="addCaseForm" class="case-form multi-step-form">
+                            <!-- Step 1: Basic Information -->
+                            <div class="form-step active" data-step="1">
+                                <h3>Basic Case Information</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="caseId">Case ID</label>
+                                        <input type="text" id="caseId" name="caseId" readonly>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="firNumber">FIR Number *</label>
+                                        <input type="text" id="firNumber" name="firNumber" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="caseType">Case Type *</label>
+                                        <select id="caseType" name="caseType" required>
+                                            <option value="">Select Case Type</option>
+                                            <option value="murder">Murder</option>
+                                            <option value="theft">Theft</option>
+                                            <option value="robbery">Robbery</option>
+                                            <option value="cybercrime">Cybercrime</option>
+                                            <option value="domestic-violence">Domestic Violence</option>
+                                            <option value="missing-person">Missing Person</option>
+                                            <option value="fraud">Fraud</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="station">Police Station *</label>
+                                        <select id="station" name="station" required>
+                                            <option value="">Select Station</option>
+                                            <!-- Stations will be populated dynamically -->
+                                        </select>
+                                    </div>
+                                </div>
+
+                                <div class="form-group" id="otherCaseTypeGroup" style="display: none;">
+                                    <label for="otherCaseType">Specify Other Case Type</label>
+                                    <input type="text" id="otherCaseType" name="otherCaseType">
+                                </div>
+                            </div>
+
+                            <!-- Step 2: Victim Information -->
+                            <div class="form-step" data-step="2">
+                                <h3>Victim Information</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="victimName">Full Name *</label>
+                                        <input type="text" id="victimName" name="victimName" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="victimGender">Gender *</label>
+                                        <select id="victimGender" name="victimGender" required>
+                                            <option value="">Select Gender</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="victimAge">Age *</label>
+                                        <input type="number" id="victimAge" name="victimAge" min="0" max="150" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="victimContact">Contact Number *</label>
+                                        <input type="tel" id="victimContact" name="victimContact" required>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="victimAddress">Address *</label>
+                                    <textarea id="victimAddress" name="victimAddress" rows="3" required></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="victimEmail">Email (Optional)</label>
+                                    <input type="email" id="victimEmail" name="victimEmail">
+                                </div>
+                            </div>
+
+                            <!-- Step 3: Suspect Information -->
+                            <div class="form-step" data-step="3">
+                                <h3>Suspect Information</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="suspectName">Full Name</label>
+                                        <input type="text" id="suspectName" name="suspectName" placeholder="Unknown if not identified">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="suspectGender">Gender</label>
+                                        <select id="suspectGender" name="suspectGender">
+                                            <option value="">Unknown</option>
+                                            <option value="male">Male</option>
+                                            <option value="female">Female</option>
+                                            <option value="other">Other</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="suspectAge">Age (Approximate)</label>
+                                        <input type="number" id="suspectAge" name="suspectAge" min="0" max="150">
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="suspectStatus">Status *</label>
+                                        <select id="suspectStatus" name="suspectStatus" required>
+                                            <option value="unknown">Unknown</option>
+                                            <option value="wanted">Wanted</option>
+                                            <option value="arrested">Arrested</option>
+                                            <option value="identified">Identified</option>
+                                        </select>
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="suspectAddress">Address (If Known)</label>
+                                    <textarea id="suspectAddress" name="suspectAddress" rows="3"></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="suspectContact">Contact Number (If Known)</label>
+                                    <input type="tel" id="suspectContact" name="suspectContact">
+                                </div>
+                            </div>
+
+                            <!-- Step 4: Incident Details -->
+                            <div class="form-step" data-step="4">
+                                <h3>Incident Details</h3>
+                                <div class="form-row">
+                                    <div class="form-group">
+                                        <label for="incidentDate">Date of Incident *</label>
+                                        <input type="date" id="incidentDate" name="incidentDate" required>
+                                    </div>
+                                    <div class="form-group">
+                                        <label for="incidentTime">Time of Incident</label>
+                                        <input type="time" id="incidentTime" name="incidentTime">
+                                    </div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="incidentLocation">Location of Incident *</label>
+                                    <textarea id="incidentLocation" name="incidentLocation" rows="3" required></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="incidentDescription">Description of Incident *</label>
+                                    <textarea id="incidentDescription" name="incidentDescription" rows="6" required placeholder="Provide detailed description of what happened..."></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="witnessStatements">Witness Statements (Optional)</label>
+                                    <textarea id="witnessStatements" name="witnessStatements" rows="4" placeholder="Record witness statements if available..."></textarea>
+                                </div>
+                            </div>
+
+                            <!-- Step 5: Evidence & Review -->
+                            <div class="form-step" data-step="5">
+                                <h3>Evidence & Final Review</h3>
+                                
+                                <div class="form-group">
+                                    <label for="evidenceFiles">Upload Evidence Files</label>
+                                    <input type="file" id="evidenceFiles" name="evidenceFiles" multiple accept="image/*,video/*,.pdf,.doc,.docx">
+                                    <small class="form-help">Supported formats: Images, Videos, PDF, Word documents</small>
+                                    <div id="evidencePreview" class="evidence-preview"></div>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="evidenceDescription">Evidence Description</label>
+                                    <textarea id="evidenceDescription" name="evidenceDescription" rows="3" placeholder="Describe the evidence collected..."></textarea>
+                                </div>
+                                
+                                <div class="form-group">
+                                    <label for="caseStatus">Initial Case Status *</label>
+                                    <select id="caseStatus" name="caseStatus" required>
+                                        <option value="open">Open</option>
+                                        <option value="in-progress">In Progress</option>
+                                        <option value="pending">Pending Investigation</option>
+                                    </select>
+                                </div>
+
+                                <div class="form-group">
+                                    <label for="assignedOfficer">Assigned Officer *</label>
+                                    <select id="assignedOfficer" name="assignedOfficer" required>
+                                        <option value="">Select Officer</option>
+                                        <!-- Officers will be populated dynamically -->
+                                    </select>
+                                </div>
+                            </div>
+
+                            <!-- Form Navigation -->
+                            <div class="form-navigation">
+                                <button type="button" id="prevBtn" class="btn btn-secondary" style="display: none;">Previous</button>
+                                <button type="button" id="nextBtn" class="btn btn-primary">Next</button>
+                                <button type="submit" id="submitBtn" class="btn btn-primary" style="display: none;">File Case</button>
+                            </div>
+                        </form>
+                    </div>
+                </div>
+
+                <!-- Search Cases Section -->
+                <div id="searchView" class="view">
+                    <div class="page-header">
+                        <h2>Search Cases</h2>
+                        <p>Advanced search and filtering</p>
+                    </div>
+                    
+                    <div class="search-form-container">
+                        <form id="advancedSearchForm" class="search-form">
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="searchCaseId">Case ID</label>
+                                    <input type="text" id="searchCaseId" name="searchCaseId">
+                                </div>
+                                <div class="form-group">
+                                    <label for="searchFirNumber">FIR Number</label>
+                                    <input type="text" id="searchFirNumber" name="searchFirNumber">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="searchVictimName">Victim Name</label>
+                                    <input type="text" id="searchVictimName" name="searchVictimName">
+                                </div>
+                                <div class="form-group">
+                                    <label for="searchSuspectName">Suspect Name</label>
+                                    <input type="text" id="searchSuspectName" name="searchSuspectName">
+                                </div>
+                            </div>
+                            
+                            <div class="form-row">
+                                <div class="form-group">
+                                    <label for="searchDateFrom">Date From</label>
+                                    <input type="date" id="searchDateFrom" name="searchDateFrom">
+                                </div>
+                                <div class="form-group">
+                                    <label for="searchDateTo">Date To</label>
+                                    <input type="date" id="searchDateTo" name="searchDateTo">
+                                </div>
+                            </div>
+                            
+                            <div class="form-actions">
+                                <button type="submit" class="btn btn-primary">Search</button>
+                                <button type="button" id="clearSearch" class="btn btn-secondary">Clear</button>
+                            </div>
+                        </form>
+                    </div>
+                    
+                    <div id="searchResults" class="search-results" style="display: none;">
+                        <h3>Search Results</h3>
+                        <div class="table-container">
+                            <table id="searchResultsTable">
+                                <thead>
+                                    <tr>
+                                        <th>Case ID</th>
+                                        <th>FIR Number</th>
+                                        <th>Type</th>
+                                        <th>Victim</th>
+                                        <th>Suspect</th>
+                                        <th>Status</th>
+                                        <th>Date Filed</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Search results will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Stations Section (Admin Only) -->
+                <div id="stationsView" class="view admin-only">
+                    <div class="page-header">
+                        <h2>Police Stations</h2>
+                        <button id="addStationBtn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add Station
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <table id="stationsTable">
+                            <thead>
+                                <tr>
+                                    <th>Station Code</th>
+                                    <th>Station Name</th>
+                                    <th>Address</th>
+                                    <th>Contact</th>
+                                    <th>In-Charge</th>
+                                    <th>Actions</th>
+                                </tr>
+                            </thead>
+                            <tbody>
+                                <!-- Stations will be populated here -->
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+
+                <!-- Users Section (Admin Only) -->
+                <div id="usersView" class="view admin-only">
+                    <div class="page-header">
+                        <h2>User Management</h2>
+                        <button id="addUserBtn" class="btn btn-primary">
+                            <i class="fas fa-plus"></i> Add User
+                        </button>
+                    </div>
+                    
+                    <div class="table-container">
+                        <div class="table-wrapper">
+                            <table id="usersTable">
+                                <thead>
+                                    <tr>
+                                        <th>ID</th>
+                                        <th>Username</th>
+                                        <th>Role</th>
+                                        <th>Full Name</th>
+                                        <th>Badge Number</th>
+                                        <th>Station</th>
+                                        <th>Status</th>
+                                        <th>Actions</th>
+                                    </tr>
+                                </thead>
+                                <tbody>
+                                    <!-- Users will be populated here -->
+                                </tbody>
+                            </table>
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Reports Section (Admin Only) -->
+                <div id="reportsView" class="view admin-only">
+                    <div class="page-header">
+                        <h2>Reports & Analytics</h2>
+                        <div class="date-range">
+                            <input type="date" id="startDate">
+                            <input type="date" id="endDate">
+                            <button id="generateReport" class="btn btn-primary">Generate Report</button>
+                        </div>
+                    </div>
+                    
+                    <div class="reports-grid">
+                        <div class="report-card">
+                            <h3>Cases by Type</h3>
+                            <canvas id="caseTypeChart"></canvas>
+                        </div>
+                        <div class="report-card">
+                            <h3>Cases by Status</h3>
+                            <canvas id="caseStatusChart"></canvas>
+                        </div>
+                        <div class="report-card">
+                            <h3>Monthly Trends</h3>
+                            <canvas id="monthlyTrendChart"></canvas>
+                        </div>
+                        <div class="report-card">
+                            <h3>Station Performance</h3>
+                            <canvas id="stationPerformanceChart"></canvas>
+                        </div>
+                    </div>
+                </div>
+            </main>
+        </div>
+    </div>
+
+    <!-- Case Details Modal -->
+    <div id="caseModal" class="modal">
+        <div class="modal-content large-modal">
+            <div class="modal-header">
+                <h3>Case Details</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <div id="caseDetails">
+                    <!-- Case details will be populated here -->
+                </div>
+                <div class="case-actions">
+                    <button id="editCaseBtn" class="btn btn-secondary">Edit Case</button>
+                    <button id="updateStatusBtn" class="btn btn-primary">Update Status</button>
+                    <button id="exportCaseBtn" class="btn btn-secondary">Export PDF</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add User Modal -->
+    <div id="userModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New User</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="addUserForm">
+                    <div class="form-group">
+                        <label for="newUsername">Username</label>
+                        <input type="text" id="newUsername" name="username" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newPassword">Password</label>
+                        <input type="password" id="newPassword" name="password" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="newRole">Role</label>
+                        <select id="newRole" name="role" required>
+                            <option value="">Select Role</option>
+                            <option value="admin">Admin</option>
+                            <option value="police">Police Officer</option>
+                        </select>
+                    </div>
+                    <div class="form-group">
+                        <label for="fullName">Full Name</label>
+                        <input type="text" id="fullName" name="fullName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="email">Email</label>
+                        <input type="email" id="email" name="email" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="badgeNumber">Badge Number</label>
+                        <input type="text" id="badgeNumber" name="badgeNumber">
+                    </div>
+                    <div class="form-group">
+                        <label for="userStation">Station</label>
+                        <select id="userStation" name="station">
+                            <option value="">Select Station</option>
+                            <!-- Stations will be populated -->
+                        </select>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add User</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <!-- Add Station Modal -->
+    <div id="stationModal" class="modal">
+        <div class="modal-content">
+            <div class="modal-header">
+                <h3>Add New Station</h3>
+                <span class="close">&times;</span>
+            </div>
+            <div class="modal-body">
+                <form id="addStationForm">
+                    <div class="form-group">
+                        <label for="stationCode">Station Code</label>
+                        <input type="text" id="stationCode" name="stationCode" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stationName">Station Name</label>
+                        <input type="text" id="stationName" name="stationName" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stationAddress">Address</label>
+                        <textarea id="stationAddress" name="stationAddress" rows="3" required></textarea>
+                    </div>
+                    <div class="form-group">
+                        <label for="stationContact">Contact Number</label>
+                        <input type="tel" id="stationContact" name="stationContact" required>
+                    </div>
+                    <div class="form-group">
+                        <label for="stationInCharge">Station In-Charge</label>
+                        <input type="text" id="stationInCharge" name="stationInCharge" required>
+                    </div>
+                    <button type="submit" class="btn btn-primary">Add Station</button>
+                </form>
+            </div>
+        </div>
+    </div>
+
+    <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+    <script src="script.js"></script>
+</body>
+</html>
